@@ -11,46 +11,59 @@ namespace Variance {
     ? "Second extends first"
     : "Types are unrelated";
 
+  type Narrow = string;
+  type Wide = string | number;
+
   //   investigate here - https://stackoverflow.com/a/66411491
   namespace Covariance {
-    type Narrow = string;
-    type Wide = string | number;
     type Before = CheckTypes<Narrow, Wide>;
     //    ^?
-    namespace ObjectWithProperty {
-      type WithA<T> = { a: T };
-      type After = CheckTypes<WithA<Narrow>, WithA<Wide>>;
-      //    ^?
-    }
-    namespace Array {
-      type After = CheckTypes<Array<Narrow>, Array<Wide>>;
-      //    ^?
-      type After2 = CheckTypes<ReadonlyArray<Narrow>, ReadonlyArray<Wide>>;
-      //    ^?
+    type WithA<T> = { a: T };
+    type After1 = CheckTypes<WithA<Narrow>, WithA<Wide>>;
+    //    ^?
 
-      type F = Array<Narrow>["unshift"];
-      type S = Array<Wide>["unshift"];
-      //   todo - this is equivalent because these are methods, not properties
-      type R = CheckTypes<F, S>;
-      //   ^?
-    }
+    type After2 = CheckTypes<Array<Narrow>, Array<Wide>>;
+    //    ^?
+    // Mention that this is wrong becuase see Invariance -> Array
+    type After3 = CheckTypes<ReadonlyArray<Narrow>, ReadonlyArray<Wide>>;
+    //    ^?
+    // this one is correct though - due to the nature of operations permitted on readonly array
   }
   namespace Contravariance {}
   namespace Invariance {
     // array is a good example of this - it's considered covariant by TS but actually invariant
+    namespace Array {
+      // I don't check methods on array themselves because of bivariance on methods
+      type Push<T> = (...value: T[]) => number;
+      type PushCheck = CheckTypes<Push<Narrow>, Push<Wide>>;
+      //   ^?
+      type Arr<T> = { [x: number]: T } & { push: Push<T> };
+      type ArrCheck = CheckTypes<Arr<Narrow>, Arr<Wide>>;
+      //   ^?
+    }
   }
   namespace Bivariance {
     namespace Method {
-      let wide = { a(x: string) {} };
-      let narrow = { a(x: string | number) {} };
-      wide = narrow;
-      narrow = wide;
+      let narrow = { a(x: Wide) {} };
+      let wide = { a(x: Narrow) {} };
+      type Result = CheckTypes<typeof narrow, typeof wide>;
+      //     ^?
+
+      type NarrowObj = { a(x: Wide): void };
+      type WideObj = { a(x: Narrow): void };
+      type Result2 = CheckTypes<NarrowObj, WideObj>;
+      //     ^?
     }
     namespace Property {
-      let wide = { a: (x: string) => {} };
-      let narrow = { a: (x: string | number) => {} };
-      wide = narrow;
-      narrow = wide;
+      let narrow = { a: (x: Wide) => {} };
+      let wide = { a: (x: Narrow) => {} };
+      type Result = CheckTypes<typeof narrow, typeof wide>;
+      //     ^?
+
+      type NarrowObj = { a: (x: Wide) => void };
+      type WideObj = { a: (x: Narrow) => void };
+      type Result2 = CheckTypes<NarrowObj, WideObj>;
+      //     ^?
     }
   }
   namespace SubtypeWeirdness {
