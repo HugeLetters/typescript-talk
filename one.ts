@@ -1,16 +1,8 @@
-namespace Variance {
-  type Extends<A, B> = [A] extends [B] ? true : false;
-  type CheckTypes<A, B, K extends [boolean, boolean] = [Extends<A, B>, Extends<B, A>]> = K extends [
-    true,
-    true
-  ]
-    ? "Equivalent"
-    : K extends [true, false]
-    ? "First extends second"
-    : K extends [false, true]
-    ? "Second extends first"
-    : "Types are unrelated";
+namespace Hierarchy {
+  // excalidraw diagram with type hierarchy
+}
 
+namespace Variance {
   type Narrow = string;
   type Wide = string | number;
 
@@ -85,27 +77,37 @@ namespace Variance {
   }
 }
 
-namespace WhatIsEmptyObject {
-  // What is {}
-  const object: {} = { a: 5 };
-  const string: {} = "string";
-  const number: {} = 12345;
-  const array: {} = [];
-  const NULL: {} = null;
-}
+namespace Footguns {
+  namespace IntersectionsAndUnions {
+    // todo - tell about how contravariance works along with & and |
+    // basic example is this
+    declare const first: (value: string) => void;
+    declare const second: (value: number) => void;
+    const mapper = [first, second].map(fn => fn());
+    //                                        ^?
+  }
+  namespace WhatIsEmptyObject {
+    // What is {}
+    const object: {} = { a: 5 };
+    const string: {} = "string";
+    const number: {} = 12345;
+    const array: {} = [];
+    const NULL: {} = null;
+  }
 
-namespace WhatIsObject {
-  // What is object
-  const object: object = { a: 5 };
-  const array: object = [];
-  const date: object = new Date();
-  const string: object = "string";
-}
+  namespace WhatIsObject {
+    // What is object
+    const object: object = { a: 5 };
+    const array: object = [];
+    const date: object = new Date();
+    const string: object = "string";
+  }
 
-namespace WhatIsFunction {
-  // What is Function
-  const func: Function = () => 1;
-  const CLASS: Function = class {};
+  namespace WhatIsFunction {
+    // What is Function
+    const func: Function = () => 1;
+    const CLASS: Function = class {};
+  }
 }
 
 // todo
@@ -129,3 +131,12 @@ namespace Assignability {
   type A = { a: number };
   type B = {};
 }
+
+type Extends<A, B> = [A] extends [B] ? true : false;
+type CheckTypes<A, B, K extends [boolean, boolean] = [Extends<A, B>, Extends<B, A>]> = K extends [true, true]
+  ? "Equivalent"
+  : K extends [true, false]
+  ? "First extends second"
+  : K extends [false, true]
+  ? "Second extends first"
+  : "Types are unrelated";
