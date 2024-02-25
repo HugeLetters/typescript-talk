@@ -1,0 +1,7 @@
+{
+  "Type with slash query": {
+    "scope": "typescript",
+    "prefix": "tq",
+    "body": ["type $1 = $2;", "//   ^?"]
+  }
+}
