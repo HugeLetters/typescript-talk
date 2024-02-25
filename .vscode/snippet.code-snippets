@@ -3,5 +3,15 @@
     "scope": "typescript",
     "prefix": "tq",
     "body": ["type $1 = $2;", "//   ^?"]
+  },
+  "Const with slash query": {
+    "scope": "typescript",
+    "prefix": "cq",
+    "body": ["const $1 = $2;", "//    ^?"]
+  },
+  "Declare const": {
+    "scope": "typescript",
+    "prefix": "dc",
+    "body": ["declare const $1: $2;"]
   }
 }
