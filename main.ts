@@ -1,5 +1,19 @@
 namespace Hierarchy {
   // excalidraw diagram with type hierarchy
+  type _ = Extends<any, never>;
+  //   ^?
+}
+
+namespace Assignability {
+  namespace Any {}
+  namespace Unknown {}
+  namespace Never {
+    // mention keyof never = PropertyKey
+    // never is not a null type, it's an everything type - it implemenets everything
+    // so when you do string & number - it DOES give an intersection of those types
+    // show this doesn't error
+    type A = never["a"]["b"]["c"];
+  }
 }
 
 namespace Variance {

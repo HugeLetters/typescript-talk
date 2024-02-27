@@ -4,6 +4,11 @@
     "prefix": "tq",
     "body": ["type $1 = $2;", "//   ^?"]
   },
+  "Check types": {
+    "scope": "typescript",
+    "prefix": "check",
+    "body": ["type _ = CheckTypes<$1,$2>;", "//   ^?"]
+  },
   "Const with slash query": {
     "scope": "typescript",
     "prefix": "cq",
