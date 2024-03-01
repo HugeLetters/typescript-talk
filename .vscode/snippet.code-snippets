@@ -18,5 +18,10 @@
     "scope": "typescript",
     "prefix": "dc",
     "body": ["declare const $1: $2;"]
+  },
+  "Show code snippet": {
+    "scope": "markdown",
+    "prefix": "cs",
+    "body": ["**SHOW CODE SNIPPET - `$1`**"]
   }
 }
