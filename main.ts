@@ -1,10 +1,33 @@
 namespace Hierarchy {
-  // excalidraw diagram with type hierarchy
-  type _ = Extends<any, never>;
-  //   ^?
+  namespace Graph {
+    type _ = CheckTypes<any, unknown>;
+    //   ^?
+  }
+  namespace Venn {
+    const a: "abcde" = "abcde";
+    const b: string = "abcde";
+    const c: unknown = "abcde";
+  }
+
+  namespace Insersection {
+    const value = Math.random() > 0.5 ? "one" : "two";
+    //    ^?
+    const OK: string = value;
+    const TOO_WIDE: string | number = value;
+    const TOO_NARROW: "one" = value;
+  }
 }
 
 namespace Assignability {
+  namespace MinimalContract {
+    const myObserver = {
+      disconnect: () => {},
+      observe: () => {},
+      takeRecords: () => [],
+    };
+    declare const withObersver: (obs: MutationObserver) => void;
+    withObersver(myObserver);
+  }
   namespace Any {}
   namespace Unknown {}
   namespace Never {
@@ -35,7 +58,32 @@ namespace Variance {
     //    ^?
     // this one is correct though - due to the nature of operations permitted on readonly array
   }
-  namespace Contravariance {}
+  namespace Contravariance {
+    type Normal = { a: string };
+    type Narrow = { a: string } & { b: string };
+    type Wide = { a: string } | { b: string };
+
+    type _ = CheckTypes<Narrow, Normal>;
+    //   ^?
+    type _ = CheckTypes<Narrow, Wide>;
+    //   ^?
+    type _ = CheckTypes<Normal, Wide>;
+    //   ^?
+
+    type Narrowkey = keyof Narrow;
+    //   ^?
+    type NormalKey = keyof Normal;
+    //   ^?
+    type WideKey = keyof Wide;
+    //   ^?
+
+    type _ = CheckTypes<Narrowkey, NormalKey>;
+    //   ^?
+    type _ = CheckTypes<Narrowkey, WideKey>;
+    //   ^?
+    type _ = CheckTypes<NormalKey, WideKey>;
+    //   ^?
+  }
   namespace Invariance {
     // array is a good example of this - it's considered covariant by TS but actually invariant
     namespace Array {
@@ -124,7 +172,7 @@ namespace Footguns {
   }
 }
 
-// todo
+// todo - I wanna display how nested generics fall back to their constraint which breaks inference
 namespace BreaksInference {
   type Base = string | number;
   function first<G extends Base[]>(value: G): G[0] | undefined {
@@ -139,11 +187,6 @@ namespace BreaksInference {
   //    ^?
   const v2 = second({ a: init });
   //    ^?
-}
-
-namespace Assignability {
-  type A = { a: number };
-  type B = {};
 }
 
 type Extends<A, B> = [A] extends [B] ? true : false;
