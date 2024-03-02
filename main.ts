@@ -39,21 +39,27 @@ namespace Assignability {
     //   ^?
   }
   namespace WhatIsToBeNarrower {
-    type _ = CheckTypes<{ a: string }, { a: string; b: string }>;
+    type _1 = CheckTypes<{ a: string }, { a: string; b: string }>;
     //   ^?
-    type ___ = CheckTypes<{ a: string }, { a: string | number; b: string }>;
+    type _2 = CheckTypes<{ a: string }, { a: string | number; b: string }>;
     //   ^?
-    type __ = CheckTypes<() => void, (x: string) => void>;
+    type _3 = CheckTypes<{ a: string }, { a?: string }>;
+    //   ^?
+    type _4 = CheckTypes<{ a: string }, { readonly a: string }>;
+    //   ^?
+
+    type __1 = CheckTypes<() => void, (x: string) => void>;
+    //   ^?
+    type __2 = CheckTypes<(x?: unknown) => void, () => void>;
     //   ^?
   }
-  namespace Any {}
-  namespace Unknown {}
   namespace Never {
-    // mention keyof never = PropertyKey
-    // never is not a null type, it's an everything type - it implemenets everything
-    // so when you do string & number - it DOES give an intersection of those types
-    // show this doesn't error
-    type A = never["a"]["b"]["c"];
+    type _1 = string & never;
+    //   ^?
+    type _2 = keyof never;
+    //   ^?
+    declare const NEVER: never;
+    NEVER["A"]["B"]["C"];
   }
 }
 
