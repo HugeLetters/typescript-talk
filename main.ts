@@ -38,6 +38,14 @@ namespace Assignability {
     type _ = CheckTypes<MutationObserver["observe"], typeof myObserver.observe>;
     //   ^?
   }
+  namespace WhatIsToBeNarrower {
+    type _ = CheckTypes<{ a: string }, { a: string; b: string }>;
+    //   ^?
+    type ___ = CheckTypes<{ a: string }, { a: string | number; b: string }>;
+    //   ^?
+    type __ = CheckTypes<() => void, (x: string) => void>;
+    //   ^?
+  }
   namespace Any {}
   namespace Unknown {}
   namespace Never {
@@ -181,6 +189,10 @@ namespace Footguns {
     const CLASS: Function = class {};
   }
 }
+
+// todo - where to put this? generic bounds chatper seems good
+type _ = any extends never ? true : false;
+//   ^?
 
 // todo - I wanna display how nested generics fall back to their constraint which breaks inference
 namespace BreaksInference {
