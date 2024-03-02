@@ -19,14 +19,24 @@ namespace Hierarchy {
 }
 
 namespace Assignability {
+  namespace Nominal {
+    type A = string;
+    type B = string;
+    type _ = CheckTypes<A, B>;
+    //   ^?
+  }
   namespace MinimalContract {
     const myObserver = {
       disconnect: () => {},
       observe: () => {},
       takeRecords: () => [],
+      iCanAlsoLogAString: (message: string) => console.log(message),
     };
     declare const withObersver: (obs: MutationObserver) => void;
     withObersver(myObserver);
+
+    type _ = CheckTypes<MutationObserver["observe"], typeof myObserver.observe>;
+    //   ^?
   }
   namespace Any {}
   namespace Unknown {}
