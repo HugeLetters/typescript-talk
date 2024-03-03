@@ -2,7 +2,29 @@ namespace Hierarchy {
   namespace Graph {
     type _ = CheckTypes<any, unknown>;
     //   ^?
+
+    // todo - write that part
+    namespace WhatIsEmptyObject {
+      const object: {} = { a: 5 };
+      const string: {} = "string";
+      const number: {} = 12345;
+      const array: {} = [];
+      const NULL: {} = null;
+    }
+
+    namespace WhatIsObject {
+      const object: object = { a: 5 };
+      const array: object = [];
+      const date: object = new Date();
+      const string: object = "string";
+    }
+
+    namespace WhatIsFunction {
+      const func: Function = () => 1;
+      const CLASS: Function = class {};
+    }
   }
+
   namespace Venn {
     const a: "abcde" = "abcde";
     const b: string = "abcde";
@@ -25,6 +47,7 @@ namespace Assignability {
     type _ = CheckTypes<A, B>;
     //   ^?
   }
+
   namespace MinimalContract {
     const myObserver = {
       disconnect: () => {},
@@ -38,6 +61,7 @@ namespace Assignability {
     type _ = CheckTypes<MutationObserver["observe"], typeof myObserver.observe>;
     //   ^?
   }
+
   namespace WhatIsToBeNarrower {
     type _1 = CheckTypes<{ a: string }, { a: string; b: string }>;
     //   ^?
@@ -53,6 +77,7 @@ namespace Assignability {
     type __2 = CheckTypes<(x?: unknown) => void, () => void>;
     //   ^?
   }
+
   namespace Never {
     type _1 = string & never;
     //   ^?
@@ -60,6 +85,17 @@ namespace Assignability {
     //   ^?
     declare const NEVER: never;
     NEVER["A"]["B"]["C"];
+  }
+}
+
+namespace Generics {
+  namespace Types {
+    type MyArray<T> = T[];
+    type _ = CheckTypes<Array<number>, MyArray<number>>;
+    //   ^?
+    type Entries<K, V> = MyArray<[K, V]>;
+    type _1 = Entries<string, number>;
+    //   ^?
   }
 }
 
@@ -82,6 +118,7 @@ namespace Variance {
     //    ^?
     // this one is correct though - due to the nature of operations permitted on readonly array
   }
+
   namespace Contravariance {
     type Normal = { a: string };
     type Narrow = { a: string } & { b: string };
@@ -107,7 +144,15 @@ namespace Variance {
     //   ^?
     type _ = CheckTypes<NormalKey, WideKey>;
     //   ^?
+
+    // todo - tell about how contravariance works along with & and |
+    // basic example is this
+    declare const first: (value: string) => void;
+    declare const second: (value: number) => void;
+    const mapper = [first, second].map(fn => fn());
+    //                                        ^?
   }
+
   namespace Invariance {
     // array is a good example of this - it's considered covariant by TS but actually invariant
     namespace Array {
@@ -120,6 +165,7 @@ namespace Variance {
       //   ^?
     }
   }
+
   namespace Bivariance {
     namespace Method {
       let narrow = { a(x: Wide) {} };
@@ -132,6 +178,7 @@ namespace Variance {
       type Result2 = CheckTypes<NarrowObj, WideObj>;
       //     ^?
     }
+
     namespace Property {
       let narrow = { a: (x: Wide) => {} };
       let wide = { a: (x: Narrow) => {} };
@@ -144,6 +191,7 @@ namespace Variance {
       //     ^?
     }
   }
+
   namespace SubtypeWeirdness {
     // When bi-extension doesn't mean equivalence
     type A = CheckTypes<{}, { a?: string }>; // wrong
@@ -163,58 +211,101 @@ namespace Variance {
   }
 }
 
-namespace Footguns {
-  namespace IntersectionsAndUnions {
-    // todo - tell about how contravariance works along with & and |
-    // basic example is this
-    declare const first: (value: string) => void;
-    declare const second: (value: number) => void;
-    const mapper = [first, second].map(fn => fn());
-    //                                        ^?
-  }
-  namespace WhatIsEmptyObject {
-    // What is {}
-    const object: {} = { a: 5 };
-    const string: {} = "string";
-    const number: {} = 12345;
-    const array: {} = [];
-    const NULL: {} = null;
+namespace MoreOnGenerics {
+  namespace Bounds {
+    type Prefix<S extends string, P extends string> = `${P}: ${S}`;
+    type _1 = Prefix<"Eugene", "Name">;
+    //   ^?
+
+    type NamePrefix<Name extends string> = Prefix<Name, "Name">;
+    type _2 = NamePrefix<"Natalia">;
+    //   ^?
   }
 
-  namespace WhatIsObject {
-    // What is object
-    const object: object = { a: 5 };
-    const array: object = [];
-    const date: object = new Date();
-    const string: object = "string";
+  namespace Conditional {
+    type StartsWithN<S extends string> = S extends `N${string}` ? true : false;
+    type _ = StartsWithN<"Natalia">;
+    //   ^?
+    type _1 = StartsWithN<"Eugene">;
+    //   ^?
+
+    type OnlyWiderThanString<S> = string extends S ? S : never;
+    type _2 = OnlyWiderThanString<string>;
+    //   ^?
+    type _3 = OnlyWiderThanString<"abcde">;
+    //   ^?
+    type _4 = OnlyWiderThanString<unknown>;
+    //   ^?
+
+    type _5 = any extends never ? true : false;
+    //   ^?
   }
 
-  namespace WhatIsFunction {
-    // What is Function
-    const func: Function = () => 1;
-    const CLASS: Function = class {};
-  }
-}
+  namespace Infer {
+    type GetFirstLetter<S> = S extends `${infer S}${string}` ? S : never;
 
-// todo - where to put this? generic bounds chatper seems good
-type _ = any extends never ? true : false;
-//   ^?
+    type _ = GetFirstLetter<"abc">;
+    //   ^?
 
-// todo - I wanna display how nested generics fall back to their constraint which breaks inference
-namespace BreaksInference {
-  type Base = string | number;
-  function first<G extends Base[]>(value: G): G[0] | undefined {
-    return value[0];
-  }
-  function second<G extends { a: Base[] }>(value: G) {
-    return first(value.a);
+    type MyReturnType<F> = F extends () => infer R ? R : never;
+    type __ = CheckTypes<MyReturnType<() => string>, ReturnType<() => string>>;
+    //   ^?
   }
 
-  const init = [3 as const];
-  const v1 = first(init);
-  //    ^?
-  const v2 = second({ a: init });
-  //    ^?
+  namespace Distributivity {
+    type IsNumber<T> = T extends number ? true : false;
+    type _1 = IsNumber<string>;
+    //   ^?
+    type _2 = IsNumber<number>;
+    //   ^?
+    type _3 = IsNumber<number | string>;
+    //   ^?
+
+    type MyArray<T> = T extends T ? T[] : never;
+    type _4 = MyArray<string | number>;
+    //   ^?
+
+    type IsNumberV2<T> = [T] extends [number] ? true : false;
+    type _5 = IsNumberV2<number | string>;
+    //   ^?
+    type ___ = [string | number];
+  }
+
+  namespace Functions {
+    namespace Inference {
+      // todo - I wanna display how nested generics fall back to their constraint which breaks inference
+      declare const init: ["abc"];
+      namespace Breaks {
+        function first<G extends string>(value: G[]) {
+          return value.map(x => x);
+        }
+
+        function second<G extends string[]>(value: G) {
+          return value.map(x => x);
+        }
+
+        const v1 = first(init);
+        //    ^?
+        const v2 = second(init);
+        //    ^?
+      }
+
+      namespace Works {
+        function first<G extends string>(value: G[]) {
+          return { value };
+        }
+
+        function second<G extends string[]>(value: G) {
+          return { value };
+        }
+
+        const v1 = first(init);
+        //    ^?
+        const v2 = second(init);
+        //    ^?
+      }
+    }
+  }
 }
 
 type Extends<A, B> = [A] extends [B] ? true : false;
