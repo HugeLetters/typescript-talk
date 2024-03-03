@@ -93,6 +93,7 @@ namespace Generics {
     type MyArray<T> = T[];
     type _ = CheckTypes<Array<number>, MyArray<number>>;
     //   ^?
+
     type Entries<K, V> = MyArray<[K, V]>;
     type _1 = Entries<string, number>;
     //   ^?
@@ -103,7 +104,6 @@ namespace Variance {
   type Narrow = string;
   type Wide = string | number;
 
-  //   investigate here - https://stackoverflow.com/a/66411491
   namespace Covariance {
     type Before = CheckTypes<Narrow, Wide>;
     //    ^?
@@ -113,44 +113,68 @@ namespace Variance {
 
     type After2 = CheckTypes<Array<Narrow>, Array<Wide>>;
     //    ^?
-    // Mention that this is wrong becuase see Invariance -> Array
     type After3 = CheckTypes<ReadonlyArray<Narrow>, ReadonlyArray<Wide>>;
     //    ^?
-    // this one is correct though - due to the nature of operations permitted on readonly array
+
+    const arr: number[] = [1, 2, 3];
+    function push(arr: unknown[]) {
+      arr.push(null);
+    }
+    push(arr);
+
+    const obj = { a: 3 };
+    function mut(obj: { a: unknown }) {
+      obj.a = null;
+    }
+    mut(obj);
   }
 
   namespace Contravariance {
-    type Normal = { a: string };
-    type Narrow = { a: string } & { b: string };
-    type Wide = { a: string } | { b: string };
+    namespace Keyof {
+      type Normal = { a: string };
+      type Narrow = { a: string } & { b: string };
+      type Wide = { a: string } | { b: string };
 
-    type _ = CheckTypes<Narrow, Normal>;
-    //   ^?
-    type _ = CheckTypes<Narrow, Wide>;
-    //   ^?
-    type _ = CheckTypes<Normal, Wide>;
-    //   ^?
+      type _1 = CheckTypes<Narrow, Normal>;
+      //   ^?
+      type _2 = CheckTypes<Narrow, Wide>;
+      //   ^?
+      type _3 = CheckTypes<Normal, Wide>;
+      //   ^?
 
-    type Narrowkey = keyof Narrow;
-    //   ^?
-    type NormalKey = keyof Normal;
-    //   ^?
-    type WideKey = keyof Wide;
-    //   ^?
+      type Keyof<T> = keyof T;
 
-    type _ = CheckTypes<Narrowkey, NormalKey>;
-    //   ^?
-    type _ = CheckTypes<Narrowkey, WideKey>;
-    //   ^?
-    type _ = CheckTypes<NormalKey, WideKey>;
-    //   ^?
+      type Narrowkey = Keyof<Narrow>;
+      //   ^?
+      type NormalKey = Keyof<Normal>;
+      //   ^?
+      type WideKey = Keyof<Wide>;
+      //   ^?
 
-    // todo - tell about how contravariance works along with & and |
-    // basic example is this
-    declare const first: (value: string) => void;
-    declare const second: (value: number) => void;
-    const mapper = [first, second].map(fn => fn());
-    //                                        ^?
+      type __1 = CheckTypes<Narrowkey, NormalKey>;
+      //   ^?
+      type __2 = CheckTypes<Narrowkey, WideKey>;
+      //   ^?
+      type __3 = CheckTypes<NormalKey, WideKey>;
+      //   ^?
+    }
+
+    namespace Function {
+      type NarrowFn = (x: Wide) => void;
+      type WideFn = (x: Narrow) => void;
+      type _ = CheckTypes<NarrowFn, WideFn>;
+      //   ^?
+
+      const narrow: WideFn = (x: Wide) => {};
+      const wide: NarrowFn = (x: Narrow) => {};
+
+      // todo - tell about how contravariance works along with & and |
+      // basic example is this
+      declare const first: (value: string) => void;
+      declare const second: (value: number) => void;
+      const mapper = [first, second].map(fn => fn());
+      //                                        ^?
+    }
   }
 
   namespace Invariance {
@@ -164,9 +188,19 @@ namespace Variance {
       type ArrCheck = CheckTypes<Arr<Narrow>, Arr<Wide>>;
       //   ^?
     }
+    namespace Function {
+      type NarrowFn = (x: Narrow) => Narrow;
+      type WideFn = (x: Wide) => Wide;
+      type _ = CheckTypes<NarrowFn, WideFn>;
+      //   ^?
+    }
   }
 
   namespace Bivariance {
+    type Constant<T> = null;
+    type _ = CheckTypes<Constant<Narrow>, Constant<Wide>>;
+    //   ^?
+
     namespace Method {
       let narrow = { a(x: Wide) {} };
       let wide = { a(x: Narrow) {} };
