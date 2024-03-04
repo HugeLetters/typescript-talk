@@ -103,17 +103,17 @@ namespace Generics {
 namespace Variance {
   type Narrow = string;
   type Wide = string | number;
+  type Before = CheckTypes<Narrow, Wide>;
+  //    ^?
 
   namespace Covariance {
-    type Before = CheckTypes<Narrow, Wide>;
-    //    ^?
     type WithA<T> = { a: T };
-    type After1 = CheckTypes<WithA<Narrow>, WithA<Wide>>;
+    type _1 = CheckTypes<WithA<Narrow>, WithA<Wide>>;
     //    ^?
 
-    type After2 = CheckTypes<Array<Narrow>, Array<Wide>>;
+    type _2 = CheckTypes<Array<Narrow>, Array<Wide>>;
     //    ^?
-    type After3 = CheckTypes<ReadonlyArray<Narrow>, ReadonlyArray<Wide>>;
+    type _3 = CheckTypes<ReadonlyArray<Narrow>, ReadonlyArray<Wide>>;
     //    ^?
 
     const arr: number[] = [1, 2, 3];
@@ -160,13 +160,30 @@ namespace Variance {
     }
 
     namespace Function {
-      type NarrowFn = (x: Wide) => void;
-      type WideFn = (x: Narrow) => void;
-      type _ = CheckTypes<NarrowFn, WideFn>;
+      type Func<T> = (x: T) => void;
+      type _ = CheckTypes<Func<Narrow>, Func<Wide>>;
       //   ^?
 
-      const narrow: WideFn = (x: Wide) => {};
-      const wide: NarrowFn = (x: Narrow) => {};
+      function onlyStrings(value: string) {
+        return value.length;
+      }
+
+      function stringsAndNumbers(value: string | number) {
+        if (typeof value === "number") return 0;
+        return value.length;
+      }
+
+      // todo - fuuuuck how do I show union -> intersection on this
+      type _1 = Func<1 | 2>;
+      //   ^?
+
+      type _1 = FirstParameter<Func<"a" | "b"> | Func<"b" | "c">>;
+      //   ^?
+      type _2 = keyof (Record<"a" | "c", null> | Record<"b" | "c", null>);
+      //   ^?
+
+      type _3 = keyof (Record<"a" | "c", null> & Record<"b" | "c", null>);
+      //   ^?
 
       // todo - tell about how contravariance works along with & and |
       // basic example is this
@@ -189,9 +206,11 @@ namespace Variance {
       //   ^?
     }
     namespace Function {
-      type NarrowFn = (x: Narrow) => Narrow;
-      type WideFn = (x: Wide) => Wide;
-      type _ = CheckTypes<NarrowFn, WideFn>;
+      type Identity<T> = (x: T) => T;
+      type _ = CheckTypes<Identity<Narrow>, Identity<Wide>>;
+      //   ^?
+
+      type _1 = Identity<1 | 2>;
       //   ^?
     }
   }
@@ -350,3 +369,5 @@ type CheckTypes<A, B, K extends [boolean, boolean] = [Extends<A, B>, Extends<B, 
   : K extends [false, true]
   ? "Second extends first"
   : "Types are unrelated";
+
+type FirstParameter<F> = [F] extends [(arg: infer A, ...args: never[]) => unknown] ? A : "Not a function";
