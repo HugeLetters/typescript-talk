@@ -3,8 +3,7 @@ namespace Hierarchy {
     type _ = CheckTypes<any, unknown>;
     //   ^?
 
-    // todo - write that part
-    namespace WhatIsEmptyObject {
+    namespace EmptyObject {
       const object: {} = { a: 5 };
       const string: {} = "string";
       const number: {} = 12345;
@@ -12,14 +11,14 @@ namespace Hierarchy {
       const NULL: {} = null;
     }
 
-    namespace WhatIsObject {
+    namespace Object {
       const object: object = { a: 5 };
       const array: object = [];
       const date: object = new Date();
       const string: object = "string";
     }
 
-    namespace WhatIsFunction {
+    namespace Function {
       const func: Function = () => 1;
       const CLASS: Function = class {};
     }
@@ -31,7 +30,7 @@ namespace Hierarchy {
     const c: unknown = "abcde";
   }
 
-  namespace Insersection {
+  namespace Intersection {
     const value = Math.random() > 0.5 ? "one" : "two";
     //    ^?
     const OK: string = value;
@@ -130,6 +129,7 @@ namespace Variance {
   }
 
   namespace Contravariance {
+    type Keyof<T> = keyof T;
     namespace Keyof {
       type Normal = { a: string };
       type Narrow = { a: string } & { b: string };
@@ -141,8 +141,6 @@ namespace Variance {
       //   ^?
       type _3 = CheckTypes<Normal, Wide>;
       //   ^?
-
-      type Keyof<T> = keyof T;
 
       type Narrowkey = Keyof<Narrow>;
       //   ^?
@@ -159,8 +157,8 @@ namespace Variance {
       //   ^?
     }
 
+    type Func<T> = (x: T) => void;
     namespace Function {
-      type Func<T> = (x: T) => void;
       type _ = CheckTypes<Func<Narrow>, Func<Wide>>;
       //   ^?
 
@@ -172,79 +170,135 @@ namespace Variance {
         if (typeof value === "number") return 0;
         return value.length;
       }
+    }
 
-      // todo - fuuuuck how do I show union -> intersection on this
-      type _1 = Func<1 | 2>;
+    namespace ContravarianceOnContravariance {
+      type Func<T> = (x: (x: T) => void) => void;
+      type _ = CheckTypes<Func<Narrow>, Func<Wide>>;
+      //   ^?
+    }
+
+    namespace UnionAndIntersection {
+      type AC = "a" | "c";
+      type BC = "b" | "c";
+      type ACRecord = Record<AC, null>;
+      type BCRecord = Record<BC, null>;
+      type _1 = CheckTypes<Keyof<ACRecord | BCRecord>, Keyof<ACRecord> & Keyof<BCRecord>>;
+      //   ^?
+      type _11 = Keyof<ACRecord> & Keyof<BCRecord>;
+      //   ^?
+      type _12 = Keyof<ACRecord | BCRecord>;
       //   ^?
 
-      type _1 = FirstParameter<Func<"a" | "b"> | Func<"b" | "c">>;
+      type _2 = CheckTypes<Func<AC | BC>, Func<AC> & Func<BC>>;
       //   ^?
-      type _2 = keyof (Record<"a" | "c", null> | Record<"b" | "c", null>);
+      declare const fa: Func<AC | BC>;
+      fa();
+      //^?
+      declare const fb: Func<AC> & Func<BC>;
+      fb();
+      //^?
+
+      type _3 = CheckTypes<Keyof<ACRecord & BCRecord>, Keyof<ACRecord> | Keyof<BCRecord>>;
+      //   ^?
+      type _31 = Keyof<ACRecord & BCRecord>;
+      //   ^?
+      type _32 = Keyof<ACRecord> | Keyof<BCRecord>;
       //   ^?
 
-      type _3 = keyof (Record<"a" | "c", null> & Record<"b" | "c", null>);
+      type _4 = CheckTypes<Func<AC & BC>, Func<AC> | Func<BC>>;
       //   ^?
+      declare const f1: Func<AC & BC>;
+      f1();
+      //^?
+      declare const f2: Func<AC> | Func<BC>;
+      f2();
+      //^?
 
-      // todo - tell about how contravariance works along with & and |
-      // basic example is this
-      declare const first: (value: string) => void;
-      declare const second: (value: number) => void;
-      const mapper = [first, second].map(fn => fn());
-      //                                        ^?
+      declare const strFn: (value: string) => void;
+      declare const numFn: (value: number) => void;
+      [strFn, numFn].map(fn => {
+        return fn();
+        //      ^?
+      });
+      declare const ACFn: (value: AC) => void;
+      declare const BCFn: (value: BC) => void;
+      const mapper = [ACFn, BCFn].map(fn => {
+        return fn("c");
+        //      ^?
+      });
     }
   }
 
   namespace Invariance {
-    // array is a good example of this - it's considered covariant by TS but actually invariant
-    namespace Array {
-      // I don't check methods on array themselves because of bivariance on methods
-      type Push<T> = (...value: T[]) => number;
-      type PushCheck = CheckTypes<Push<Narrow>, Push<Wide>>;
-      //   ^?
-      type Arr<T> = { [x: number]: T } & { push: Push<T> };
-      type ArrCheck = CheckTypes<Arr<Narrow>, Arr<Wide>>;
-      //   ^?
-    }
     namespace Function {
       type Identity<T> = (x: T) => T;
       type _ = CheckTypes<Identity<Narrow>, Identity<Wide>>;
       //   ^?
+    }
 
-      type _1 = Identity<1 | 2>;
+    namespace Object {
+      type SelfRecord<K extends PropertyKey> = Record<K, K>;
+      type _ = CheckTypes<SelfRecord<"a">, SelfRecord<"a" | "b">>;
+      //   ^?
+    }
+
+    namespace Array {
+      type Push<T> = (...value: T[]) => number;
+      type _1 = CheckTypes<Push<Narrow>, Push<Wide>>;
+      //   ^?
+
+      type MyArray<T> = { [x: number]: T } & { push: Push<T> };
+      type _2 = CheckTypes<MyArray<Narrow>, MyArray<Wide>>;
+      //   ^?
+    }
+
+    namespace ReadonlyArray {
+      declare const arr: ReadonlyArray<number>;
+      arr.concat("2", null);
+
+      type Concat<T> = <R>(...x: Array<R | Array<R>>) => Array<T | R>;
+      type MyReadonlyArray<T> = { [x: number]: T; concat: Concat<T> };
+      declare const myarr: MyReadonlyArray<number>;
+      const newarr = myarr.concat("2", null);
+      //     ^?
+
+      type _ = CheckTypes<MyReadonlyArray<Narrow>, MyReadonlyArray<Wide>>;
       //   ^?
     }
   }
 
   namespace Bivariance {
-    type Constant<T> = null;
-    type _ = CheckTypes<Constant<Narrow>, Constant<Wide>>;
-    //   ^?
+    namespace Constant {
+      type Null<T> = null;
+      type _ = CheckTypes<Null<Narrow>, Null<Wide>>;
+      //   ^?
+    }
 
     namespace Method {
-      let narrow = { a(x: Wide) {} };
-      let wide = { a(x: Narrow) {} };
-      type Result = CheckTypes<typeof narrow, typeof wide>;
+      type Method<T> = { a(x: T): void };
+      type _1 = CheckTypes<Method<Narrow>, Method<Wide>>;
       //     ^?
 
-      type NarrowObj = { a(x: Wide): void };
-      type WideObj = { a(x: Narrow): void };
-      type Result2 = CheckTypes<NarrowObj, WideObj>;
+      const narrow = { a(x: Wide) {} };
+      const wide = { a(x: Narrow) {} };
+      type _2 = CheckTypes<typeof narrow, typeof wide>;
       //     ^?
     }
 
     namespace Property {
-      let narrow = { a: (x: Wide) => {} };
-      let wide = { a: (x: Narrow) => {} };
-      type Result = CheckTypes<typeof narrow, typeof wide>;
+      type Property<T> = { a: (x: T) => void };
+      type _1 = CheckTypes<Property<Wide>, Property<Narrow>>;
       //     ^?
 
-      type NarrowObj = { a: (x: Wide) => void };
-      type WideObj = { a: (x: Narrow) => void };
-      type Result2 = CheckTypes<NarrowObj, WideObj>;
+      const narrow = { a: (x: Wide) => {} };
+      const wide = { a: (x: Narrow) => {} };
+      type _2 = CheckTypes<typeof narrow, typeof wide>;
       //     ^?
     }
   }
 
+  // todo - is this needed?
   namespace SubtypeWeirdness {
     // When bi-extension doesn't mean equivalence
     type A = CheckTypes<{}, { a?: string }>; // wrong
@@ -362,11 +416,12 @@ namespace MoreOnGenerics {
 }
 
 type Extends<A, B> = [A] extends [B] ? true : false;
-type CheckTypes<A, B, K extends [boolean, boolean] = [Extends<A, B>, Extends<B, A>]> = K extends [true, true]
+type CheckTypes<A, B> = GetComparisonResult<[Extends<A, B>, Extends<B, A>]>;
+type GetComparisonResult<C extends [boolean, boolean]> = C extends [true, true]
   ? "Equivalent"
-  : K extends [true, false]
+  : C extends [true, false]
   ? "First extends second"
-  : K extends [false, true]
+  : C extends [false, true]
   ? "Second extends first"
   : "Types are unrelated";
 
