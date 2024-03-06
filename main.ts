@@ -83,7 +83,7 @@ namespace Assignability {
   }
 
   namespace Never {
-    type _1 = string & never;
+    type _1 = string & number;
     //   ^?
     type _2 = keyof never;
     //   ^?
@@ -319,7 +319,7 @@ namespace Variance {
 
     namespace Property {
       type Property<T> = { a: (x: T) => void };
-      type _1 = CheckTypes<Property<Wide>, Property<Narrow>>;
+      type _1 = CheckTypes<Property<Narrow>, Property<Wide>>;
       //     ^?
 
       const narrow = { a: (x: Wide) => {} };
@@ -339,5 +339,3 @@ type GetComparisonResult<C extends [boolean, boolean]> = C extends [true, true]
   : C extends [false, true]
   ? "Second extends first"
   : "Types are unrelated";
-
-type FirstParameter<F> = [F] extends [(arg: infer A, ...args: never[]) => unknown] ? A : "Not a function";
