@@ -37,6 +37,15 @@ namespace Hierarchy {
     const TOO_WIDE: string | number = value;
     const TOO_NARROW: "one" = value;
   }
+
+  namespace Any {
+    type _1 = unknown extends never ? true : false;
+    //   ^?
+    type _2 = never extends never ? true : false;
+    //   ^?
+    type _3 = any extends never ? true : false;
+    //   ^?
+  }
 }
 
 namespace Assignability {
@@ -66,10 +75,6 @@ namespace Assignability {
     //   ^?
     type _2 = CheckTypes<{ a: string }, { a: string | number; b: string }>;
     //   ^?
-    type _3 = CheckTypes<{ a: string }, { a?: string }>;
-    //   ^?
-    type _4 = CheckTypes<{ a: string }, { readonly a: string }>;
-    //   ^?
 
     type __1 = CheckTypes<() => void, (x: string) => void>;
     //   ^?
@@ -84,6 +89,29 @@ namespace Assignability {
     //   ^?
     declare const NEVER: never;
     NEVER["A"]["B"]["C"];
+  }
+
+  namespace PropertyModifiers {
+    type _1 = CheckTypes<{ a: string }, { a?: string }>;
+    //   ^?
+    type _2 = CheckTypes<{ a: string }, { readonly a: string }>;
+    //   ^?
+
+    type _3 = CheckTypes<{}, { a?: string }>; // wrong
+    //   ^?
+    type _4 = CheckTypes<{ a?: string }, { b?: string }>;
+    //   ^?
+    type _5 = CheckTypes<{ a?: string; c: string }, { b?: string; c: string }>; // wrong
+    //   ^?
+    type _6 = CheckTypes<Record<never, unknown>, { b?: string }>; // wrong
+    //   ^?
+    type _7 = CheckTypes<Record<string, unknown>, { b?: string }>; // wrong
+    //   ^?
+    type _8 = CheckTypes<{ b: string }, { a?: string; b: string }>; // wrong
+    //   ^?
+
+    const ab: Record<"a" | "b", null> = { a: null, b: null };
+    const record: Record<string, null> = { a: null, b: null };
   }
 }
 
@@ -295,122 +323,6 @@ namespace Variance {
       const wide = { a: (x: Narrow) => {} };
       type _2 = CheckTypes<typeof narrow, typeof wide>;
       //     ^?
-    }
-  }
-
-  // todo - is this needed?
-  namespace SubtypeWeirdness {
-    // When bi-extension doesn't mean equivalence
-    type A = CheckTypes<{}, { a?: string }>; // wrong
-    //   ^?
-    type B = CheckTypes<{ a?: string }, { b?: string }>;
-    //   ^?
-    type B2 = CheckTypes<{ a?: string; c: string }, { b?: string; c: string }>; // wrong
-    //   ^?
-    type C = CheckTypes<Record<never, unknown>, { b?: string }>; // wrong
-    //   ^?
-    type D = CheckTypes<Record<PropertyKey, unknown>, { b?: string }>; // wrong
-    //   ^?
-    type E = CheckTypes<{ b: string }, { a?: string; b: string }>; // wrong
-    //   ^?
-
-    /** Рассказать про сложности с index/never ключами - работают они не так же как конкретные ключи, тк не требуют их наличия */
-  }
-}
-
-namespace MoreOnGenerics {
-  namespace Bounds {
-    type Prefix<S extends string, P extends string> = `${P}: ${S}`;
-    type _1 = Prefix<"Eugene", "Name">;
-    //   ^?
-
-    type NamePrefix<Name extends string> = Prefix<Name, "Name">;
-    type _2 = NamePrefix<"Natalia">;
-    //   ^?
-  }
-
-  namespace Conditional {
-    type StartsWithN<S extends string> = S extends `N${string}` ? true : false;
-    type _ = StartsWithN<"Natalia">;
-    //   ^?
-    type _1 = StartsWithN<"Eugene">;
-    //   ^?
-
-    type OnlyWiderThanString<S> = string extends S ? S : never;
-    type _2 = OnlyWiderThanString<string>;
-    //   ^?
-    type _3 = OnlyWiderThanString<"abcde">;
-    //   ^?
-    type _4 = OnlyWiderThanString<unknown>;
-    //   ^?
-
-    type _5 = any extends never ? true : false;
-    //   ^?
-  }
-
-  namespace Infer {
-    type GetFirstLetter<S> = S extends `${infer S}${string}` ? S : never;
-
-    type _ = GetFirstLetter<"abc">;
-    //   ^?
-
-    type MyReturnType<F> = F extends () => infer R ? R : never;
-    type __ = CheckTypes<MyReturnType<() => string>, ReturnType<() => string>>;
-    //   ^?
-  }
-
-  namespace Distributivity {
-    type IsNumber<T> = T extends number ? true : false;
-    type _1 = IsNumber<string>;
-    //   ^?
-    type _2 = IsNumber<number>;
-    //   ^?
-    type _3 = IsNumber<number | string>;
-    //   ^?
-
-    type MyArray<T> = T extends T ? T[] : never;
-    type _4 = MyArray<string | number>;
-    //   ^?
-
-    type IsNumberV2<T> = [T] extends [number] ? true : false;
-    type _5 = IsNumberV2<number | string>;
-    //   ^?
-    type ___ = [string | number];
-  }
-
-  namespace Functions {
-    namespace Inference {
-      // todo - I wanna display how nested generics fall back to their constraint which breaks inference
-      declare const init: ["abc"];
-      namespace Breaks {
-        function first<G extends string>(value: G[]) {
-          return value.map(x => x);
-        }
-
-        function second<G extends string[]>(value: G) {
-          return value.map(x => x);
-        }
-
-        const v1 = first(init);
-        //    ^?
-        const v2 = second(init);
-        //    ^?
-      }
-
-      namespace Works {
-        function first<G extends string>(value: G[]) {
-          return { value };
-        }
-
-        function second<G extends string[]>(value: G) {
-          return { value };
-        }
-
-        const v1 = first(init);
-        //    ^?
-        const v2 = second(init);
-        //    ^?
-      }
     }
   }
 }
