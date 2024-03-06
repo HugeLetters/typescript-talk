@@ -307,10 +307,13 @@ namespace Variance {
       type Method<T> = { a(x: T): void };
       type _1 = CheckTypes<Method<Narrow>, Method<Wide>>;
       //     ^?
+      type _2 = CheckTypes<Method<string>, Method<number>>;
+      //     ^?
+      type __ = Array<number>["push"];
 
       const narrow = { a(x: Wide) {} };
       const wide = { a(x: Narrow) {} };
-      type _2 = CheckTypes<typeof narrow, typeof wide>;
+      type _3 = CheckTypes<typeof narrow, typeof wide>;
       //     ^?
     }
 
