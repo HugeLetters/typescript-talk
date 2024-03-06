@@ -1,8 +1,11 @@
 {
   "name": "ts-talk",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "emit-pdf": "mkdir -p ./build && md-to-pdf talk.md > ./build/talk.pdf"
+  },
   "dependencies": {
+    "md-to-pdf": "^5.2.4",
     "typescript": "^5.3.3"
   }
 }
