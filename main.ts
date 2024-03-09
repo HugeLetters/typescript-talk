@@ -6,6 +6,9 @@ namespace Hierarchy {
     //   ^?
     type _3 = any extends never ? true : false;
     //   ^?
+
+    declare const any: any;
+    const never: never = any;
   }
 }
 
