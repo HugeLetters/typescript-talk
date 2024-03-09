@@ -18,26 +18,29 @@ namespace Assignability {
     type B = string;
     type _ = CheckTypes<A, B>;
     //   ^?
+
+    type Finite = "a" | "b";
   }
 
   namespace MinimalContract {
+    declare function withObersver(obs: MutationObserver): void;
     const myObserver = {
       disconnect: () => {},
       observe: () => {},
       takeRecords: () => [],
-      iCanAlsoLogAString: (message: string) => console.log(message),
+      log: (message: string) => console.log(message),
     };
-    declare const withObersver: (obs: MutationObserver) => void;
+
     withObersver(myObserver);
 
-    type _ = CheckTypes<MutationObserver["observe"], typeof myObserver.observe>;
+    type _ = CheckTypes<typeof myObserver.observe, MutationObserver["observe"]>;
     //   ^?
   }
 
   namespace WhatIsToBeNarrower {
     type _1 = CheckTypes<{ a: string }, { a: string; b: string }>;
     //   ^?
-    type _2 = CheckTypes<{ a: string }, { a: string | number; b: string }>;
+    type _2я = CheckTypes<{ a: string }, { a: string | number; b: string }>;
     //   ^?
 
     type __1 = CheckTypes<() => void, (x: string) => void>;
