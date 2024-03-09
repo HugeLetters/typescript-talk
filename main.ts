@@ -1,43 +1,4 @@
 namespace Hierarchy {
-  namespace Graph {
-    type _ = CheckTypes<any, unknown>;
-    //   ^?
-
-    namespace EmptyObject {
-      const object: {} = { a: 5 };
-      const string: {} = "string";
-      const number: {} = 12345;
-      const array: {} = [];
-      const NULL: {} = null;
-    }
-
-    namespace Object {
-      const object: object = { a: 5 };
-      const array: object = [];
-      const date: object = new Date();
-      const string: object = "string";
-    }
-
-    namespace Function {
-      const func: Function = () => 1;
-      const CLASS: Function = class {};
-    }
-  }
-
-  namespace Venn {
-    const a: "abcde" = "abcde";
-    const b: string = "abcde";
-    const c: unknown = "abcde";
-  }
-
-  namespace Intersection {
-    const value = Math.random() > 0.5 ? "one" : "two";
-    //    ^?
-    const OK: string = value;
-    const TOO_WIDE: string | number = value;
-    const TOO_NARROW: "one" = value;
-  }
-
   namespace Any {
     type _1 = unknown extends never ? true : false;
     //   ^?
