@@ -6,6 +6,6 @@
   },
   "dependencies": {
     "md-to-pdf": "^5.2.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   }
 }
