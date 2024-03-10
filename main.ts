@@ -37,15 +37,25 @@ namespace Assignability {
     //   ^?
   }
 
+  namespace Juggler {
+    type First = "🤹‍♂️";
+    type Second = "🤹‍♂️ + 🎸";
+    type Third = "🤹‍♂️ / 🎸";
+  }
+
+  namespace Spy {
+    type DossierOne = "🧔";
+    type DossierTwo = "🧿 + 🧔";
+    type DossierThree = "🧿 / 🧔";
+  }
+
   namespace WhatIsToBeNarrower {
     type _1 = CheckTypes<{ a: string }, { a: string; b: string }>;
     //   ^?
-    type _2я = CheckTypes<{ a: string }, { a: string | number; b: string }>;
+    type _2 = CheckTypes<{ a: string }, { a: string | number; b: string }>;
     //   ^?
 
-    type __1 = CheckTypes<() => void, (x: string) => void>;
-    //   ^?
-    type __2 = CheckTypes<(x?: unknown) => void, () => void>;
+    type __1 = CheckTypes<(x?: unknown) => void, () => void>;
     //   ^?
   }
 
@@ -64,21 +74,12 @@ namespace Assignability {
     type _2 = CheckTypes<{ a: string }, { readonly a: string }>;
     //   ^?
 
-    type _3 = CheckTypes<{}, { a?: string }>; // wrong
+    type _3 = CheckTypes<{ a?: string }, { b?: string }>;
     //   ^?
-    type _4 = CheckTypes<{ a?: string }, { b?: string }>;
-    //   ^?
-    type _5 = CheckTypes<{ a?: string; c: string }, { b?: string; c: string }>; // wrong
-    //   ^?
-    type _6 = CheckTypes<Record<never, unknown>, { b?: string }>; // wrong
-    //   ^?
-    type _7 = CheckTypes<Record<string, unknown>, { b?: string }>; // wrong
-    //   ^?
-    type _8 = CheckTypes<{ b: string }, { a?: string; b: string }>; // wrong
+    type _4 = CheckTypes<{ a?: string; c: string }, { b?: string; c: string }>; //! wrong
     //   ^?
 
-    const ab: Record<"a" | "b", null> = { a: null, b: null };
-    const record: Record<string, null> = { a: null, b: null };
+    const index_signature: { [x: string]: null } = { a: null, b: null };
   }
 }
 
