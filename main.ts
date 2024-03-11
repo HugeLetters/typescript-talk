@@ -141,9 +141,8 @@ namespace Variance {
       //   ^?
     }
 
-    type Func<T> = (x: T) => void;
-
     namespace Function {
+      type Func<T> = (x: T) => void;
       type _ = CheckTypes<Func<Narrow>, Func<Wide>>;
       //   ^?
 
@@ -174,37 +173,20 @@ namespace Variance {
       type BC = "b" | "c";
       type ACRecord = Record<AC, null>;
       type BCRecord = Record<BC, null>;
-      type _1 = CheckTypes<Keyof<ACRecord | BCRecord>, Keyof<ACRecord> & Keyof<BCRecord>>;
-      //   ^?
+
       type _11 = Keyof<ACRecord> & Keyof<BCRecord>;
       //   ^?
       type _12 = Keyof<ACRecord | BCRecord>;
       //   ^?
-
-      type _2 = CheckTypes<Func<AC | BC>, Func<AC> & Func<BC>>;
-      //   ^?
-      declare const fa: Func<AC | BC>;
-      fa();
-      //^?
-      declare const fb: Func<AC> & Func<BC>;
-      fb();
-      //^?
-
-      type _3 = CheckTypes<Keyof<ACRecord & BCRecord>, Keyof<ACRecord> | Keyof<BCRecord>>;
-      //   ^?
-      type _31 = Keyof<ACRecord & BCRecord>;
-      //   ^?
-      type _32 = Keyof<ACRecord> | Keyof<BCRecord>;
+      type _1 = CheckTypes<Keyof<ACRecord | BCRecord>, Keyof<ACRecord> & Keyof<BCRecord>>;
       //   ^?
 
-      type _4 = CheckTypes<Func<AC & BC>, Func<AC> | Func<BC>>;
+      type _21 = Keyof<ACRecord & BCRecord>;
       //   ^?
-      declare const f1: Func<AC & BC>;
-      f1();
-      //^?
-      declare const f2: Func<AC> | Func<BC>;
-      f2();
-      //^?
+      type _22 = Keyof<ACRecord> | Keyof<BCRecord>;
+      //   ^?
+      type _2 = CheckTypes<Keyof<ACRecord & BCRecord>, Keyof<ACRecord> | Keyof<BCRecord>>;
+      //   ^?
 
       declare const strFn: (value: string) => void;
       declare const numFn: (value: number) => void;
