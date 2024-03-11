@@ -54,8 +54,10 @@ namespace Assignability {
     //   ^?
     type _2 = CheckTypes<{ a: string }, { a: string | number; b: string }>;
     //   ^?
+  }
 
-    type __1 = CheckTypes<(x?: unknown) => void, () => void>;
+  namespace OptionalParameter {
+    type _ = CheckTypes<(x?: unknown) => void, () => void>;
     //   ^?
   }
 
@@ -162,8 +164,8 @@ namespace Variance {
       stringsAndNumbers("c");
     }
 
-    namespace ContravarianceOnContravariance {
-      type Func<T> = (x: (x: T) => void) => void;
+    namespace Squared {
+      type Func<T> = (callback: (value: T) => void) => void;
       type _ = CheckTypes<Func<Narrow>, Func<Wide>>;
       //   ^?
     }
