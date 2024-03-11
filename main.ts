@@ -113,6 +113,7 @@ namespace Variance {
 
   namespace Contravariance {
     type Keyof<T> = keyof T;
+
     namespace Keyof {
       type Normal = { a: string };
       type Narrow = { a: string } & { b: string };
@@ -141,6 +142,7 @@ namespace Variance {
     }
 
     type Func<T> = (x: T) => void;
+
     namespace Function {
       type _ = CheckTypes<Func<Narrow>, Func<Wide>>;
       //   ^?
