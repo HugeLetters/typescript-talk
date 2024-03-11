@@ -227,6 +227,14 @@ namespace Variance {
       type Null<T> = null;
       type _ = CheckTypes<Null<Narrow>, Null<Wide>>;
       //   ^?
+
+      type F<T> = null;
+      type A = Narrow;
+      type B = Wide;
+      type __ = CheckTypes<F<A>, F<B>>;
+      //   ^?
+
+      // a <= b and b <= a   ---->   a = b
     }
 
     namespace Method {
@@ -263,25 +271,21 @@ namespace Variance {
         arr.push(null);
       }
       push(arr);
+    }
 
-      const obj = { a: 3 };
-      function mut(obj: { a: unknown }) {
-        obj.a = null;
-      }
-      mut(obj);
-      namespace ReadonlyArray {
-        declare const arr: ReadonlyArray<number>;
-        arr.concat("2", null);
+    namespace ReadonlyArray {
+      declare const arr: ReadonlyArray<number>;
+      arr.concat("2", null);
 
-        type Concat<T> = <R>(...x: Array<R | Array<R>>) => Array<T | R>;
-        type MyReadonlyArray<T> = { [x: number]: T; concat: Concat<T> };
-        declare const myarr: MyReadonlyArray<number>;
-        const newarr = myarr.concat("2", null);
-        //     ^?
+      type Concat<T> = <R>(...x: Array<R>) => Array<T | R>;
+      type MyReadonlyArray<T> = { [x: number]: T; concat: Concat<T> };
 
-        type _ = CheckTypes<MyReadonlyArray<Narrow>, MyReadonlyArray<Wide>>;
-        //   ^?
-      }
+      declare const myarr: MyReadonlyArray<number>;
+      const newarr = myarr.concat("2", null);
+      //     ^?
+
+      type _ = CheckTypes<MyReadonlyArray<Narrow>, MyReadonlyArray<Wide>>;
+      //   ^?
     }
   }
 }

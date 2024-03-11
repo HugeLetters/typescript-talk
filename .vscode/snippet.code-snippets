@@ -22,6 +22,6 @@
   "Show code snippet": {
     "scope": "markdown",
     "prefix": "cs",
-    "body": ["**SHOW CODE SNIPPET - `$1`**"]
+    "body": ["## Show code snippet - `$1`"]
   }
 }
