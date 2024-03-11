@@ -190,15 +190,20 @@ namespace Variance {
 
       declare const strFn: (value: string) => void;
       declare const numFn: (value: number) => void;
-      [strFn, numFn].map(fn => {
-        return fn();
-        //      ^?
+      [strFn, numFn].forEach(fn => {
+        fn();
+        //^?
+        fn("str");
+        fn(123);
       });
+
       declare const ACFn: (value: AC) => void;
       declare const BCFn: (value: BC) => void;
-      const mapper = [ACFn, BCFn].map(fn => {
-        return fn("c");
-        //      ^?
+      const mapper = [ACFn, BCFn].forEach(fn => {
+        fn("c");
+        //^?
+        fn("a");
+        fn("b");
       });
     }
   }
