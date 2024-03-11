@@ -220,16 +220,6 @@ namespace Variance {
       type _ = CheckTypes<SelfRecord<"a">, SelfRecord<"a" | "b">>;
       //   ^?
     }
-
-    namespace Array {
-      type Push<T> = (...value: T[]) => number;
-      type _1 = CheckTypes<Push<Narrow>, Push<Wide>>;
-      //   ^?
-
-      type MyArray<T> = { [x: number]: T } & { push: Push<T> };
-      type _2 = CheckTypes<MyArray<Narrow>, MyArray<Wide>>;
-      //   ^?
-    }
   }
 
   namespace Bivariance {
