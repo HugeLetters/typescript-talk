@@ -1,0 +1,15 @@
+body {
+  padding: 0.5rem;
+}
+
+code {
+  text-wrap: nowrap;
+  outline: 1px solid lightblue;
+  border-width: 0 !important;
+  background-color: lightcyan !important;
+  color: orangered;
+}
+
+p {
+  line-height: 1.2rem;
+}

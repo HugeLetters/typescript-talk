@@ -2,7 +2,7 @@
   "name": "ts-talk",
   "type": "module",
   "scripts": {
-    "emit-pdf": "mkdir -p ./build && cat talk.md | md-to-pdf > ./build/talk.pdf",
+    "emit-pdf": "mkdir -p ./build && cat talk.md | md-to-pdf --css=\"$(cat ./main.css | tr -d '\n')\" > ./build/talk.pdf",
     "check-pdf": "npm run emit-pdf && open ./build/talk.pdf"
   },
   "dependencies": {
