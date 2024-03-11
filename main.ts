@@ -85,17 +85,21 @@ namespace Assignability {
 
 namespace Generics {
   namespace Types {
-    type MyArray<T> = T[];
-    type _ = CheckTypes<Array<number>, MyArray<number>>;
+    type Pair<T> = [T, T];
+    type NumberPair = Pair<number>;
     //   ^?
-
-    type Entries<K, V> = MyArray<[K, V]>;
-    type _1 = Entries<string, number>;
+    type StringPair = Pair<string>;
     //   ^?
   }
 }
 
 namespace Variance {
+  type A = string | number;
+  type B = number;
+  type G<T> = T;
+  type _ = CheckTypes<G<A>, G<B>>;
+  //  ???
+
   type Narrow = string;
   type Wide = string | number;
   type Before = CheckTypes<Narrow, Wide>;
@@ -105,23 +109,6 @@ namespace Variance {
     type WithA<T> = { a: T };
     type _1 = CheckTypes<WithA<Narrow>, WithA<Wide>>;
     //    ^?
-
-    type _2 = CheckTypes<Array<Narrow>, Array<Wide>>;
-    //    ^?
-    type _3 = CheckTypes<ReadonlyArray<Narrow>, ReadonlyArray<Wide>>;
-    //    ^?
-
-    const arr: number[] = [1, 2, 3];
-    function push(arr: unknown[]) {
-      arr.push(null);
-    }
-    push(arr);
-
-    const obj = { a: 3 };
-    function mut(obj: { a: unknown }) {
-      obj.a = null;
-    }
-    mut(obj);
   }
 
   namespace Contravariance {
@@ -161,11 +148,17 @@ namespace Variance {
       function onlyStrings(value: string) {
         return value.length;
       }
+      onlyStrings("a");
+      onlyStrings("b");
+      onlyStrings("c");
 
       function stringsAndNumbers(value: string | number) {
         if (typeof value === "number") return 0;
         return value.length;
       }
+      stringsAndNumbers("a");
+      stringsAndNumbers("b");
+      stringsAndNumbers("c");
     }
 
     namespace ContravarianceOnContravariance {
@@ -248,20 +241,6 @@ namespace Variance {
       type _2 = CheckTypes<MyArray<Narrow>, MyArray<Wide>>;
       //   ^?
     }
-
-    namespace ReadonlyArray {
-      declare const arr: ReadonlyArray<number>;
-      arr.concat("2", null);
-
-      type Concat<T> = <R>(...x: Array<R | Array<R>>) => Array<T | R>;
-      type MyReadonlyArray<T> = { [x: number]: T; concat: Concat<T> };
-      declare const myarr: MyReadonlyArray<number>;
-      const newarr = myarr.concat("2", null);
-      //     ^?
-
-      type _ = CheckTypes<MyReadonlyArray<Narrow>, MyReadonlyArray<Wide>>;
-      //   ^?
-    }
   }
 
   namespace Bivariance {
@@ -294,6 +273,36 @@ namespace Variance {
       const wide = { a: (x: Narrow) => {} };
       type _2 = CheckTypes<typeof narrow, typeof wide>;
       //     ^?
+    }
+
+    namespace Array {
+      type _2 = CheckTypes<Array<Narrow>, Array<Wide>>;
+      //    ^?
+
+      const arr: number[] = [1, 2, 3];
+      function push(arr: unknown[]) {
+        arr.push(null);
+      }
+      push(arr);
+
+      const obj = { a: 3 };
+      function mut(obj: { a: unknown }) {
+        obj.a = null;
+      }
+      mut(obj);
+      namespace ReadonlyArray {
+        declare const arr: ReadonlyArray<number>;
+        arr.concat("2", null);
+
+        type Concat<T> = <R>(...x: Array<R | Array<R>>) => Array<T | R>;
+        type MyReadonlyArray<T> = { [x: number]: T; concat: Concat<T> };
+        declare const myarr: MyReadonlyArray<number>;
+        const newarr = myarr.concat("2", null);
+        //     ^?
+
+        type _ = CheckTypes<MyReadonlyArray<Narrow>, MyReadonlyArray<Wide>>;
+        //   ^?
+      }
     }
   }
 }
