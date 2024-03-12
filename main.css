@@ -10,6 +10,18 @@ code {
   color: orangered;
 }
 
+h1 {
+  padding-inline: 0.5rem;
+}
+
+h2 {
+  padding-inline: 0.25rem;
+}
+
 p {
   line-height: 1.2rem;
+}
+
+@page {
+  margin: 2rem;
 }
