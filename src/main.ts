@@ -38,9 +38,10 @@ namespace Assignability {
   }
 
   namespace Juggler {
-    type First = "🤹‍♂️";
-    type Second = "🤹‍♂️ + 🎸";
-    type Third = "🤹‍♂️ / 🎸";
+    type First = "🎸";
+    type Second = "🤹‍♂️";
+    type Third = "🤹‍♂️ + 🎸";
+    type Fourth = "🤹‍♂️ / 🎸";
   }
 
   namespace Spy {
@@ -151,14 +152,15 @@ namespace Variance {
       function onlyStrings(value: string) {
         return value.length;
       }
-      onlyStrings("a");
-      onlyStrings("b");
-      onlyStrings("c");
 
       function stringsAndNumbers(value: string | number) {
         if (typeof value === "number") return 0;
         return value.length;
       }
+
+      onlyStrings("a");
+      onlyStrings("b");
+      onlyStrings("c");
       stringsAndNumbers("a");
       stringsAndNumbers("b");
       stringsAndNumbers("c");
