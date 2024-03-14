@@ -205,7 +205,7 @@ namespace Variance {
 
       declare const ACFn: (value: AC) => void;
       declare const BCFn: (value: BC) => void;
-      const mapper = [ACFn, BCFn].forEach(fn => {
+      [ACFn, BCFn].forEach(fn => {
         fn("c");
         //^?
         fn("a");
@@ -300,7 +300,7 @@ type CheckTypes<A, B> = GetComparisonResult<[Extends<A, B>, Extends<B, A>]>;
 type GetComparisonResult<C extends [boolean, boolean]> = C extends [true, true]
   ? "Equivalent"
   : C extends [true, false]
-  ? "First extends second"
+  ? "1st extends 2nd"
   : C extends [false, true]
-  ? "Second extends first"
+  ? "2nd extends 1st"
   : "Types are unrelated";
