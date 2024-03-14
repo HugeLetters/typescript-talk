@@ -79,7 +79,7 @@ namespace Assignability {
 
     type _3 = CheckTypes<{ a?: string }, { b?: string }>;
     //   ^?
-    type _4 = CheckTypes<{ a?: string; c: string }, { b?: string; c: string }>; //! wrong
+    type _4 = CheckTypes<{ a?: string; c?: string }, { b?: string; c?: string }>; //! wrong
     //   ^?
 
     const index_signature: { [x: string]: null } = { a: null, b: null };
@@ -159,11 +159,13 @@ namespace Variance {
       }
 
       onlyStrings("a");
-      onlyStrings("b");
-      onlyStrings("c");
       stringsAndNumbers("a");
+      onlyStrings("b");
       stringsAndNumbers("b");
+      onlyStrings("c");
       stringsAndNumbers("c");
+      onlyStrings(0);
+      stringsAndNumbers(0);
     }
 
     namespace Squared {
@@ -247,7 +249,6 @@ namespace Variance {
       //     ^?
       type _2 = CheckTypes<Method<string>, Method<number>>;
       //     ^?
-      type __ = Array<number>["push"];
 
       const narrow = { a(x: Wide) {} };
       const wide = { a(x: Narrow) {} };
