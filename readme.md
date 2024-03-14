@@ -2,4 +2,5 @@
 
 Materials on the talk about Typescript type system I'm preparing - the talk is in Russian however.
 
-**I will need to put a link to the talk here later(it's on March 14th) - if you've noticed this and link is still not here please remind me :)**
+## Link to the video
+[![Watch the talk](https://img.youtube.com/vi/v8oZC8SMxMU/0.jpg)](https://www.youtube.com/watch?v=v8oZC8SMxMU)
